@@ -1,17 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-
 
 #define SCREEN_WIDTH 80
 #define SCREEN_HEIGHT 24
-
 
 struct charInfo
 {
     char character;
     char color;
 }buffer[SCREEN_HEIGHT][SCREEN_WIDTH];
+
+struct trail
+{
+    int start;
+    int end;
+    int speed;
+} trails[SCREEN_WIDTH];
 
 void setCursorPosition(int x, int y)
 {
@@ -59,22 +63,20 @@ int mod(int dividend, int divisor) {
     return dividend;
 }
 
-
-struct trail
-{
-    int start;
-    int end;
-    int speed;
-} trails[SCREEN_WIDTH];
-
-
 void init_trail(struct trail *trail)
 {
-    trail->start = -(mod(rand(), SCREEN_HEIGHT));
-    trail->end = 0;
-    trail->speed = mod(rand(), 5);
+    if (mod(rand(), 4) != 0)
+    {
+        trail->start = -(mod(rand(), SCREEN_HEIGHT));
+        trail->end = 0;
+        trail->speed = 1;// mod(rand(), 5);
+    }
+    else {
+        trail->start = -SCREEN_HEIGHT;  // Keep it off-screen
+        trail->end = -SCREEN_HEIGHT;
+        trail->speed = 0;  // No movement
+    }
 }
-
 
 void update(struct charInfo buffer[SCREEN_HEIGHT][SCREEN_WIDTH])
 {
@@ -98,8 +100,6 @@ void update(struct charInfo buffer[SCREEN_HEIGHT][SCREEN_WIDTH])
         {
 	        // select random char and make green
             buffer[y][x].character = mod(rand(), 256);
-            
-
 
             if (y == end - 1)
                 // Print char white
@@ -117,18 +117,30 @@ void update(struct charInfo buffer[SCREEN_HEIGHT][SCREEN_WIDTH])
 	}
 }
 
-
 int main() {
     // Initialize trails
     for (int i = 0; i < SCREEN_WIDTH; i++)
         init_trail(&trails[i]);
 
-    while (1)
+    for (int i = 0; i < 100; i++)
     {
         update(buffer);
         printFrame(buffer);
-        delay(50);
+        delay(5);
     }
+
+    delay(5000);
+    cls();
+
+    printf("   _____                            ____   _____ \n");
+    printf("  / ____|                          / __ \\ / ____|\n");
+    printf(" | |  __  ___  ___  _ __ __ _  ___| |  | | (___  \n");
+    printf(" | | |_ |/ _ \\/ _ \\| '__/ _` |/ _ \\ |  | |\\___ \\ \n");
+    printf(" | |__| |  __/ (_) | | | (_| |  __/ |__| |____) |\n");
+    printf("  \\_____|\\___|\\___/|_|  \\__, |\\___|\\____/|_____/ \n");
+    printf("                         __/ |                   \n");
+    printf("                        |___/                    \n");
+
 
     return 0;
 }
